@@ -1,27 +1,27 @@
 package core.model;
 
+import core.model.tasks.*;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class RepositoryImp implements Repository{
+public class RepositoryImp implements Repository {
 
     @Override
     public List<Task> getAllTasks() {
 
-        List<Task> allTasks=new ArrayList<>(Arrays.asList(
+        Task openFile = new FileOpenTask(new File("C:\\Program Files\\IObit\\Advanced SystemCare\\ASC.exe"));
+        openFile = new TimeTaskDecorator(openFile, new Date(new Date().getTime() + 10000));
 
-                new Task.Builder(1, Task.Command.OPEN_FILE, new Date())
-                        .setOpenFile(new File("C:\\Program Files\\IObit\\Advanced SystemCare\\ASC.exe"))
-                        .build(),
-
-                new Task.Builder(2, Task.Command.OPEN_URL, new Date())
-                        .setOpenUrl("https://google.com")
-                        .build()
+        Task shutdn = new PcPowerTask(PcPowerTask.TYPE.SHUTDOWN, 5);
+        List<Task> allBaseTasks = new ArrayList<>(Arrays.asList(
+                openFile,
+                shutdn
         ));
 
-        return allTasks;
+        return allBaseTasks;
     }
 }

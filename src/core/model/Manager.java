@@ -1,14 +1,16 @@
 package core.model;
 
-import java.io.File;
+import core.model.tasks.Task;
+import core.model.tasks.TaskWithDescription;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Manager {
 
     private Repository repository;
-    private List<Task> allTasks;
-    private ScheduledTasksWatcher scheduledTasksWatcher;
+    private List<Task> allBaseTasks;
+
 
     public void start(){
 
@@ -18,16 +20,18 @@ public class Manager {
     }
 
     private void startScheduledTasks() {
-        scheduledTasksWatcher=new ScheduledTasksWatcher();
-        List<Task> tasks=getScheduledTasks();
-        scheduledTasksWatcher.setScheduledTasks(tasks);
-        scheduledTasksWatcher.startWatch();
+        List<Task> baseTasks =getScheduledTasks();
+        if(!baseTasks.isEmpty()){
+            for(Task t: baseTasks){
+                t.start();
+            }
+        }
     }
 
     private void startImmediatlyTasks() {
-        List<Task> tasks=getImmediatlyTasks();
-        if(!tasks.isEmpty()){
-            for(Task t:tasks){
+        List<Task> baseTasks =getImmediatlyTasks();
+        if(!baseTasks.isEmpty()){
+            for(Task t: baseTasks){
                 t.start();
             }
         }
@@ -35,14 +39,14 @@ public class Manager {
 
     private void initAllTasks() {
         repository=new RepositoryImp();
-        allTasks=repository.getAllTasks();
+        allBaseTasks =repository.getAllTasks();
     }
     private List<Task> getImmediatlyTasks(){
         List<Task> response=new ArrayList<>();
 
-        for(Task task:allTasks){
-            if(task.isImmediatly()){
-                response.add(task);
+        for(Task baseTask : allBaseTasks){
+            if(baseTask.isImmediately()){
+                response.add(baseTask);
             }
         }
         return response;
@@ -50,9 +54,9 @@ public class Manager {
     private List<Task> getScheduledTasks(){
         List<Task> response=new ArrayList<>();
 
-        for(Task task:allTasks){
-            if(task.isScheduled()){
-                response.add(task);
+        for(Task baseTask : allBaseTasks){
+            if(!baseTask.isImmediately()){
+                response.add(baseTask);
             }
         }
         return response;
